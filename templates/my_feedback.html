@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Feedback</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h1>My Feedback</h1>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class="flashes">
+          {% for message in messages %}
+            <li>{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    {% if total > 0 %}
+            <p>Total Feedback Submitted: {{ total }}</p>
+            <table border="1" cellpadding="5" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Message</th>
+                        <th>Category</th>
+                        <th>Rating</th>
+                        <th>Sentiment</th>
+                        <th>Submitted At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in entries %}
+                    <tr>
+                        <td>{{ entry[0] }}</td>
+                        <td>{{ entry[3] }}</td>
+                        <td>{{ entry[4] }}</td>
+                        <td>{{ entry[5] }}</td>
+                        <td>{{ entry[6] }}</td>
+                        <td>{{ entry[7] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>You have not submitted any feedback yet.</p>
+        {% endif %}
+
+        <p>
+            <a href="{{ url_for('user_dashboard') }}">Back to Dashboard</a>|
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </p>
+    </div>
+</body>
+</html>
+
+   

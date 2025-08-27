@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Submit Feedback</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <p style="text-align:right;">
+      <a href="{{ url_for('index') }}">Home</a>
+    </p>
+
+    <h1>Submit Feedback</h1>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class="flash">
+          {% for msg in messages %}
+            <li>{{ msg }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('submit') }}" method="POST">
+      <label for="name">Name</label>
+      <input type="text" name="name" required>
+
+      <label for="email">Email</label>
+      <input type="email" name="email" required>
+
+      <label for="message">Message</label>
+      <textarea name="message" required></textarea>
+
+      <label for="category">Category</label>
+      <select name="category" required>
+        <option value="">--Select Category--</option>
+        <option value="General">General</option>
+        <option value="Product">Product</option>
+        <option value="Service">Service</option>
+        <option value="Other">Other</option>
+      </select>
+
+      <label for="rating">Rating</label>
+      <select name="rating" required>
+        <option value="">--Select Rating--</option>
+        <option value="1">1 - Very Poor</option>
+        <option value="2">2 - Poor</option>
+        <option value="3">3 - Average</option>
+        <option value="4">4 - Good</option>
+        <option value="5">5 - Excellent</option>
+      </select>
+
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+</body>
+</html>

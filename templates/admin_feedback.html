@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Admin Dashboard</h1>
+
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <ul class="flashes">
+              {% for message in messages %}
+                <li>{{ message }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+
+        <p>Total Feedback: {{ total }}</p>
+
+        <!-- Sentiment Stats -->
+        <h3>Sentiment Stats</h3>
+        <ul>
+          {% set pos = 0 %}{% set neg = 0 %}{% set neu = 0 %}
+          {% for entry in entries %}
+            {% if entry[7] == 'Positive' %}{% set pos = pos + 1 %}{% endif %}
+            {% if entry[7] == 'Negative' %}{% set neg = neg + 1 %}{% endif %}
+            {% if entry[7] == 'Neutral'  %}{% set neu = neu + 1 %}{% endif %}
+          {% endfor %}
+          <li>Positive: {{ pos }} ({{ (pos / total * 100)|round(1) if total > 0 else 0 }}%)</li>
+          <li>Negative: {{ neg }} ({{ (neg / total * 100)|round(1) if total > 0 else 0 }}%)</li>
+          <li>Neutral: {{ neu }} ({{ (neu / total * 100)|round(1) if total > 0 else 0 }}%)</li>
+
+        </ul>
+
+       <!-- Category Stats -->
+        <h3>Category Stats</h3>
+        <ul>
+            {% set cat_general = 0 %}{% set cat_bug = 0 %}{% set cat_feature = 0 %}{% set cat_other = 0 %}
+            {% for entry in entries %}
+                {% if entry[5] == 'General' %}{% set cat_general = cat_general + 1 %}{% endif %}
+                {% if entry[5] == 'Bug' %}{% set cat_bug = cat_bug + 1 %}{% endif %}
+                {% if entry[5] == 'Feature' %}{% set cat_feature = cat_feature + 1 %}{% endif %}
+                {% if entry[5] == 'Other' %}{% set cat_other = cat_other + 1 %}{% endif %}
+            {% endfor %}
+            <li>General: {{ cat_general }} ({{ (cat_general / total * 100)|round(1) if total > 0 else 0 }}%)</li>
+            <li>Bug: {{ cat_bug }} ({{ (cat_bug / total * 100)|round(1) if total > 0 else 0 }}%)</li>
+            <li>Feature: {{ cat_feature }} ({{ (cat_feature / total * 100)|round(1) if total > 0 else 0 }}%)</li>
+            <li>Other: {{ cat_other }} ({{ (cat_other / total * 100)|round(1) if total > 0 else 0 }}%)</li>
+        </ul>
+
+<!-- Rating Stats -->
+<h3>Rating Stats</h3>
+        <ul>
+            {% for i in range(1,6) %}
+                {% set count = 0 %}
+                {% for entry in entries %}
+                {% if entry[6] == i %}{% set count = count + 1 %}{% endif %}
+                {% endfor %}
+                <li>{{ i }} Star: {{ count }} ({{ (count / total * 100)|round(1) if total > 0 else 0 }}%)</li>
+            {% endfor %}
+        </ul>
+
+        <!-- Feedback Table -->
+        <h3>Feedback Entries</h3>
+        <table border="1" cellpadding="5" cellspacing="0">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>User</th>
+              <th>Email</th>
+              <th>Message</th>
+              <th>Category</th>
+              <th>Rating</th>
+              <th>Sentiment</th>
+              <th>Submitted At</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for entry in entries %}
+            <tr>
+              <td>{{ entry[0] }}</td>
+              <td>{{ entry[2] }}</td>
+              <td>{{ entry[3] }}</td>
+              <td>{{ entry[4] }}</td>
+              <td>{{ entry[5] }}</td>
+              <td>{{ entry[6] }}</td>
+              <td>{{ entry[7] }}</td>
+              <td>{{ entry[8] }}</td>
+              <td>
+                <a href="{{ url_for('edit', id=entry[0]) }}">Edit</a> |
+                <a href="{{ url_for('delete', id=entry[0]) }}" onclick="return confirm('Are you sure you want to delete this feedback?');">Delete</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <p><a href="{{ url_for('logout') }}">Logout</a></p>
+    </div>
+</body>
+</html>
