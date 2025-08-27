@@ -1,7 +1,8 @@
 import sqlite3
+from config import DB_PATH
 
 def init_db():
-    conn = sqlite3.connect("feedback.db")
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
     # --- Create 'users' table ---
@@ -42,7 +43,7 @@ def init_db():
 
     conn.commit()
     conn.close()
-    print("Database initialized successfully with upgraded schema.")
+    print(f"Database initialized successfully with upgraded schema at {DB_PATH}")
 
 # --- Run directly ---
 if __name__ == "__main__":

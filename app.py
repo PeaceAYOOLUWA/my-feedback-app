@@ -1,19 +1,24 @@
 import csv
-from flask import Flask, session, render_template, request, redirect, url_for, flash
 import sqlite3
+from flask import Flask, session, render_template, request, redirect, url_for, flash
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from textblob import TextBlob
 from flask_login import login_required
 from setup_admin import init_admin
 from init_db import init_db
+from config import DB_PATH, CSV_PATH
 
 app = Flask(__name__)
 app.secret_key = 'yoursecretkey'
 
+# --- DB helper ---
+def get_db_connection():
+    return sqlite3.connect(DB_PATH)
+
 # --- Initialize Database and Admin ---
-init_db()       
-init_admin()    
+init_db()
+init_admin()
 
 # --- Decorators ---
 def login_required(f):
@@ -32,7 +37,7 @@ def admin_required(f):
             flash("You must be logged in.")
             return redirect(url_for("login"))
 
-        conn = sqlite3.connect("feedback.db")
+        conn = get_db_connection()
         c = conn.cursor()
         c.execute("SELECT is_admin FROM users WHERE id = ?", (session["user_id"],))
         user = c.fetchone()
@@ -60,7 +65,7 @@ def signup():
             flash("All fields are required.")
             return redirect(url_for("signup"))
 
-        conn = sqlite3.connect("feedback.db")
+        conn = get_db_connection()
         c = conn.cursor()
         c.execute("SELECT COUNT(*) FROM users")
         user_count = c.fetchone()[0]
@@ -89,7 +94,7 @@ def login():
         username = request.form['username']
         password = request.form['password']
 
-        conn = sqlite3.connect("feedback.db")
+        conn = get_db_connection()
         c = conn.cursor()
         c.execute("SELECT id, password, is_admin FROM users WHERE username = ?", (username,))
         row = c.fetchone()
@@ -144,7 +149,7 @@ def submit():
     polarity = TextBlob(message).sentiment.polarity
     sentiment = "Positive" if polarity > 0.1 else "Negative" if polarity < -0.1 else "Neutral"
 
-    conn = sqlite3.connect("feedback.db")
+    conn = get_db_connection()
     c = conn.cursor()
     c.execute(
         "INSERT INTO feedback (user_id, name, email, message, category, rating, sentiment) VALUES (?, ?, ?, ?, ?, ?, ?)",
@@ -156,10 +161,11 @@ def submit():
     flash("Thank you for your feedback!")
     return redirect(url_for("index"))
 
+# --- Stats ---
 @app.route("/stats")
 @login_required
 def stats():
-    conn = sqlite3.connect("feedback.db")
+    conn = get_db_connection()
     c = conn.cursor()
 
     # Total feedback count
@@ -208,11 +214,11 @@ def stats():
         rating_percent=rating_percent
     )
 
+# --- Export CSV ---
 @app.route("/export_local")
 @admin_required
 def export_local():
-    # Connect and fetch data
-    conn = sqlite3.connect("feedback.db")
+    conn = get_db_connection()
     c = conn.cursor()
     c.execute(
         "SELECT id, user_id, name, email, message, category, rating, sentiment, created_at FROM feedback"
@@ -220,17 +226,14 @@ def export_local():
     feedbacks = c.fetchall()
     conn.close()
 
-    # Rating mapping for readability
     rating_map = {1: "Poor", 2: "Fair", 3: "Good", 4: "Very Good", 5: "Excellent"}
 
-    # Save CSV directly to local project folder
-    with open("feedback_local.csv", "w", newline="", encoding="utf-8") as f:
+    # Write to CSV
+    with open(CSV_PATH, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f, quotechar='"', quoting=csv.QUOTE_ALL)
-
         # Write header
         writer.writerow(['ID', 'User ID', 'Name', 'Email', 'Message', 'Category', 'Rating', 'Sentiment', 'Created At'])
-
-        # Write rows with cleanup
+        # Write data rows
         for row in feedbacks:
             id_, user_id, name, email, message, category, rating, sentiment, created_at = row
             cleaned_row = [
@@ -246,14 +249,13 @@ def export_local():
             ]
             writer.writerow(cleaned_row)
 
-    return "CSV exported locally! Check 'feedback_local.csv' in your project folder."
-
+    return f"CSV exported! Check '{CSV_PATH}' in your project folder."
 
 # --- Admin dashboard ---
 @app.route("/admin")
 @admin_required
 def admin_dashboard():
-    conn = sqlite3.connect("feedback.db")
+    conn = get_db_connection()
     c = conn.cursor()
     c.execute("SELECT id, user_id, name, email, message, category, rating, sentiment, created_at FROM feedback ORDER BY created_at ASC")
     entries = c.fetchall()
@@ -266,7 +268,7 @@ def admin_dashboard():
 @app.route("/my/feedback")
 @login_required
 def my_feedback():
-    conn = sqlite3.connect("feedback.db")
+    conn = get_db_connection()
     c = conn.cursor()
     c.execute(
         "SELECT id, name, email, message, category, rating, sentiment, created_at FROM feedback WHERE user_id = ? ORDER BY created_at ASC",
@@ -277,18 +279,17 @@ def my_feedback():
     total = len(entries)
     return render_template("my_feedback.html", entries=entries, total=total)
 
-# --- User dashboard view ---
+# --- User dashboard ---
 @app.route("/dashboard")
 @login_required
 def user_dashboard():
     return render_template("user_dashboard.html")
 
-
 # --- Edit feedback ---
 @app.route("/edit/<int:id>", methods=["GET", "POST"])
 @login_required
 def edit(id):
-    conn = sqlite3.connect("feedback.db")
+    conn = get_db_connection()
     c = conn.cursor()
     c.execute("SELECT id, user_id, name, email, message, category, rating FROM feedback WHERE id = ?", (id,))
     entry = c.fetchone()
@@ -303,7 +304,6 @@ def edit(id):
         flash("You do not have permission to edit this feedback.")
         return redirect(url_for("index"))
 
-    # Convert entry tuple to a dictionary for easier access in template
     feedback = {
         "id": entry[0],
         "user_id": entry[1],
@@ -351,12 +351,11 @@ def edit(id):
     conn.close()
     return render_template("edit.html", feedback=feedback)
 
-
-# --- Delete feedback (admin only) ---
+# --- Delete feedback ---
 @app.route("/delete/<int:id>", methods=["POST", "GET"])
 @admin_required
 def delete(id):
-    conn = sqlite3.connect("feedback.db")
+    conn = get_db_connection()
     c = conn.cursor()
     c.execute("DELETE FROM feedback WHERE id = ?", (id,))
     conn.commit()

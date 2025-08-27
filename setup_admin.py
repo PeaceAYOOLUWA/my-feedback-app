@@ -1,8 +1,9 @@
 import sqlite3
 from werkzeug.security import generate_password_hash
+from config import DB_PATH
 
 def init_admin():
-    conn = sqlite3.connect("feedback.db")
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
     # Add is_admin column if it doesn't exist
@@ -32,7 +33,7 @@ def init_admin():
 
     conn.commit()
     conn.close()
-
+    print(f"Admin initialization completed using database at {DB_PATH}")
 
 # Call the function when running this script directly
 if __name__ == "__main__":

@@ -1,6 +1,7 @@
 import sqlite3
+from config import DB_PATH
 
-conn = sqlite3.connect('feedback.db')  # use the path to your database
+conn = sqlite3.connect(DB_PATH)  # use the path to your database
 c = conn.cursor()
 
 # Add user_id column if it doesn't exist
