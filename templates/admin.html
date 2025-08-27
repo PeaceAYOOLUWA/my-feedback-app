@@ -22,6 +22,10 @@
 
     <p>Total Feedback: {{ total }}</p>
 
+    <a href="{{ url_for('export_local') }}" class="btn btn-success" style="float: right; margin-bottom: 15px;">
+    Export Feedback (CSV)
+</a>
+
     <!-- Sentiment Stats -->
     <h3>Sentiment Stats</h3>
     <ul>
@@ -64,11 +68,8 @@
       {% endfor %}
     </ul>
 
-    <a href="{{ url_for('export_feedback') }}" class="btn btn-success" style="float: right; margin-bottom: 15px;">
-    Export CSV
-</a>
 
-    <!-- Feedback Table -->
+        <!-- Feedback Table -->
     <h3>Feedback Entries</h3>
     <table border="1" cellpadding="5" cellspacing="0">
       <thead>
