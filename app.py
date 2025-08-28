@@ -228,8 +228,8 @@ def export_local():
 
     rating_map = {1: "Poor", 2: "Fair", 3: "Good", 4: "Very Good", 5: "Excellent"}
 
-    # Write to CSV
-    with open(CSV_PATH, "a", newline="", encoding="utf-8") as f:
+    # Write to CSV overwrite mode
+    with open(CSV_PATH, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f, quotechar='"', quoting=csv.QUOTE_ALL)
         # Write header
         writer.writerow(['ID', 'User ID', 'Name', 'Email', 'Message', 'Category', 'Rating', 'Sentiment', 'Created At'])
