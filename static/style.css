@@ -131,6 +131,55 @@ table tr:hover {
     background-color: #962d22;
 }
 
+/* ===== Stats Cards (Admin Dashboard) ===== */
+.stats-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin: 15px 0 25px;
+}
+
+.stat-card {
+    flex: 1;
+    min-width: 160px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 15px 20px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+}
+
+.stat-card h4 {
+    font-size: 15px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #34495e;
+}
+
+.stat-card p {
+    font-size: 18px;
+    font-weight: bold;
+    color: #2980b9; /* theme blue */
+    margin: 0;
+}
+
+/* Optional special colors for Sentiment Stats */
+.stat-positive p {
+    color: #27ae60; /* green for positive */
+}
+.stat-negative p {
+    color: #c0392b; /* red for negative */
+}
+.stat-neutral p {
+    color: #7f8c8d; /* gray for neutral */
+}
+
 /*  Dashboard Stats  */
 h3 {
     margin-top: 25px;

@@ -23,47 +23,43 @@
         <p>Total Feedback: {{ total }}</p>
 
         <!-- Sentiment Stats -->
-        <h3>Sentiment Stats</h3>
-        <ul>
-          {% set pos = 0 %}{% set neg = 0 %}{% set neu = 0 %}
-          {% for entry in entries %}
-            {% if entry[7] == 'Positive' %}{% set pos = pos + 1 %}{% endif %}
-            {% if entry[7] == 'Negative' %}{% set neg = neg + 1 %}{% endif %}
-            {% if entry[7] == 'Neutral'  %}{% set neu = neu + 1 %}{% endif %}
-          {% endfor %}
-          <li>Positive: {{ pos }} ({{ (pos / total * 100)|round(1) if total > 0 else 0 }}%)</li>
-          <li>Negative: {{ neg }} ({{ (neg / total * 100)|round(1) if total > 0 else 0 }}%)</li>
-          <li>Neutral: {{ neu }} ({{ (neu / total * 100)|round(1) if total > 0 else 0 }}%)</li>
-
-        </ul>
+    <h3>Sentiment Stats</h3>
+    <div class="stats-container">
+      <div class="stat-card stat-positive">
+        <h4>Positive</h4>
+        <p>{{ pos }} ({{ (pos / total * 100)|round(1) if total > 0 else 0 }}%)</p>
+      </div>
+      <div class="stat-card stat-negative">
+        <h4>Negative</h4>
+        <p>{{ neg }} ({{ (neg / total * 100)|round(1) if total > 0 else 0 }}%)</p>
+      </div>
+      <div class="stat-card stat-neutral">
+        <h4>Neutral</h4>
+        <p>{{ neu }} ({{ (neu / total * 100)|round(1) if total > 0 else 0 }}%)</p>
+      </div>
+    </div>
 
        <!-- Category Stats -->
         <h3>Category Stats</h3>
-        <ul>
-            {% set cat_general = 0 %}{% set cat_bug = 0 %}{% set cat_feature = 0 %}{% set cat_other = 0 %}
-            {% for entry in entries %}
-                {% if entry[5] == 'General' %}{% set cat_general = cat_general + 1 %}{% endif %}
-                {% if entry[5] == 'Bug' %}{% set cat_bug = cat_bug + 1 %}{% endif %}
-                {% if entry[5] == 'Feature' %}{% set cat_feature = cat_feature + 1 %}{% endif %}
-                {% if entry[5] == 'Other' %}{% set cat_other = cat_other + 1 %}{% endif %}
-            {% endfor %}
-            <li>General: {{ cat_general }} ({{ (cat_general / total * 100)|round(1) if total > 0 else 0 }}%)</li>
-            <li>Bug: {{ cat_bug }} ({{ (cat_bug / total * 100)|round(1) if total > 0 else 0 }}%)</li>
-            <li>Feature: {{ cat_feature }} ({{ (cat_feature / total * 100)|round(1) if total > 0 else 0 }}%)</li>
-            <li>Other: {{ cat_other }} ({{ (cat_other / total * 100)|round(1) if total > 0 else 0 }}%)</li>
-        </ul>
+    <div class="stats-container">
+      {% for category, count in category_stats.items() %}
+        <div class="stat-card">
+          <h4>{{ category }}</h4>
+          <p>{{ count }}</p>
+        </div>
+      {% endfor %}
+    </div>
 
-<!-- Rating Stats -->
-<h3>Rating Stats</h3>
-        <ul>
-            {% for i in range(1,6) %}
-                {% set count = 0 %}
-                {% for entry in entries %}
-                {% if entry[6] == i %}{% set count = count + 1 %}{% endif %}
-                {% endfor %}
-                <li>{{ i }} Star: {{ count }} ({{ (count / total * 100)|round(1) if total > 0 else 0 }}%)</li>
-            {% endfor %}
-        </ul>
+      <!-- Rating Stats -->
+            <h3>Rating Stats</h3>
+        <div class="stats-container">
+          {% for rating, count in rating_stats.items() %}
+            <div class="stat-card">
+              <h4>Rating {{ rating }}</h4>
+              <p>{{ count }}</p>
+            </div>
+          {% endfor %}
+        </div>
 
         <!-- Feedback Table -->
         <h3>Feedback Entries</h3>

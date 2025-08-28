@@ -261,10 +261,39 @@ def admin_dashboard():
     c = conn.cursor()
     c.execute("SELECT id, user_id, name, email, message, category, rating, sentiment, created_at FROM feedback ORDER BY created_at ASC")
     entries = c.fetchall()
-    c.execute("SELECT COUNT(*) FROM feedback")
-    total = c.fetchone()[0]
+    
+    # Total feedback count
+    total = len(entries)
+
+    # Initialize stats
+    sentiment_counts = {"Positive": 0, "Negative": 0, "Neutral": 0}
+    category_counts = {}
+    rating_counts = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+
+    # Calculate stats
+    for e in entries:
+        _, _, _, _, _, category, rating, sentiment, _ = e
+        sentiment_counts[sentiment] = sentiment_counts.get(sentiment, 0) + 1
+        category_counts[category] = category_counts.get(category, 0) + 1
+        rating_counts[rating] = rating_counts.get(rating, 0) + 1
+
+    # Extract individual sentiment counts for template
+    pos = sentiment_counts.get("Positive", 0)
+    neg = sentiment_counts.get("Negative", 0)
+    neu = sentiment_counts.get("Neutral", 0)
+
     conn.close()
-    return render_template("admin.html", entries=entries, total=total)
+
+    return render_template(
+        "admin_feedback.html",  # your template
+        entries=entries,
+        total=total,
+        pos=pos,
+        neg=neg,
+        neu=neu,
+        category_stats=category_counts,
+        rating_stats=rating_counts
+    )
 
 # --- User feedback view ---
 @app.route("/my/feedback")
