@@ -249,7 +249,9 @@ def export_local():
             ]
             writer.writerow(cleaned_row)
 
-    return f"CSV exported! Check '{CSV_PATH}' in your project folder."
+    flash(f"CSV exported successfully! Check '{CSV_PATH}' in your project folder.", "success")
+    return redirect(url_for("index"))
+
 
 # --- Admin dashboard ---
 @app.route("/admin")
